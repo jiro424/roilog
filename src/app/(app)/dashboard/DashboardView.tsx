@@ -111,11 +111,11 @@ export default function DashboardView({
             onClick={() => {
               const periodLabel =
                 period === 'year'
-                  ? `${new Date().getFullYear()}年`
+                  ? `${new Date().getFullYear()} SEASON`
                   : period === 'month'
-                  ? `${monthDate.getFullYear()}年${monthDate.getMonth() + 1}月`
-                  : '全期間'
-              setShare({ title: `${periodLabel}の成績`, summary, entries: filtered })
+                  ? `${monthDate.getFullYear()}.${String(monthDate.getMonth() + 1).padStart(2, '0')}`
+                  : 'ALL TIME'
+              setShare({ title: periodLabel, summary, entries: filtered })
             }}
             className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center neu-soft tap"
             aria-label="シェア"

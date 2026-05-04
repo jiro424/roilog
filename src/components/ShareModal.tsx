@@ -29,9 +29,10 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
     const t = setTimeout(async () => {
       if (!cardRef.current) return
       try {
+        await document.fonts.ready
         const canvas = await html2canvas(cardRef.current, {
           backgroundColor: '#dfe6ee',
-          scale: 0.5,
+          scale: 1,
           logging: false,
           useCORS: true,
         })
@@ -39,7 +40,7 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
       } catch (e) {
         console.error(e)
       }
-    }, 100)
+    }, 200)
     return () => { active = false; clearTimeout(t) }
   }, [open])
 
@@ -59,9 +60,10 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
     if (!cardRef.current) return
     setBusy(true)
     try {
+      await document.fonts.ready
       const canvas = await html2canvas(cardRef.current, {
         backgroundColor: '#dfe6ee',
-        scale: 1,
+        scale: 2,
         logging: false,
         useCORS: true,
       })
