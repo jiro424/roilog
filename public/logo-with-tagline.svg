@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" width="600" height="240">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Outfit:wght@500&amp;display=swap');
+      .wordmark {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 140px;
+        fill: #005ba0;
+        letter-spacing: 8px;
+      }
+      .tagline {
+        font-family: 'Outfit', sans-serif;
+        font-size: 22px;
+        fill: #9ca3af;
+        letter-spacing: 4px;
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <text x="50%" y="48%" text-anchor="middle" dominant-baseline="middle" class="wordmark">ROILOG</text>
+  <text x="50%" y="83%" text-anchor="middle" dominant-baseline="middle" class="tagline">TOURNAMENT ROI TRACKER</text>
+</svg>

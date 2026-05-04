@@ -1,0 +1,186 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import html2canvas from 'html2canvas'
+import ShareCard from './ShareCard'
+import type { RoiSummary, EntryWithRels } from '@/lib/roi'
+
+type Props = {
+  open: boolean
+  onClose: () => void
+  title: string
+  brandName?: string
+  summary: RoiSummary
+  hideAmounts: boolean
+  entries?: EntryWithRels[]
+}
+
+export default function ShareModal({ open, onClose, title, brandName, summary, hideAmounts, entries }: Props) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open) {
+      setPreviewUrl(null)
+      return
+    }
+    let active = true
+    const t = setTimeout(async () => {
+      if (!cardRef.current) return
+      try {
+        const canvas = await html2canvas(cardRef.current, {
+          backgroundColor: '#dfe6ee',
+          scale: 0.5,
+          logging: false,
+          useCORS: true,
+        })
+        if (active) setPreviewUrl(canvas.toDataURL('image/png'))
+      } catch (e) {
+        console.error(e)
+      }
+    }, 100)
+    return () => { active = false; clearTimeout(t) }
+  }, [open])
+
+  const buildText = () => {
+    const lines = [
+      `${brandName ? `[${brandName}] ` : ''}${title}`,
+      ``,
+      `${summary.entryCount}エントリー / ${summary.cashCount}インマネ`,
+      `ROI ${summary.roi === null ? '—' : `${summary.roi >= 0 ? '+' : ''}${summary.roi.toFixed(1)}%`}`,
+      ``,
+      `#ROILOG`,
+    ]
+    return lines.join('\n')
+  }
+
+  const handleShare = async () => {
+    if (!cardRef.current) return
+    setBusy(true)
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#dfe6ee',
+        scale: 1,
+        logging: false,
+        useCORS: true,
+      })
+      const blob: Blob = await new Promise((resolve) =>
+        canvas.toBlob((b) => resolve(b!), 'image/png')
+      )
+      const file = new File([blob], 'roilog.png', { type: 'image/png' })
+      const text = buildText()
+
+      // Web Share API（モバイル）
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text })
+          setBusy(false)
+          onClose()
+          return
+        } catch {
+          // ユーザーキャンセルなど → フォールバックへ
+        }
+      }
+
+      // フォールバック：画像ダウンロード ＋ Xインテント
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'roilog.png'
+      a.click()
+      URL.revokeObjectURL(url)
+
+      const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`
+      window.open(intent, '_blank', 'noopener')
+    } finally {
+      setBusy(false)
+      onClose()
+    }
+  }
+
+  if (!open) return null
+
+  return (
+    <>
+      {/* 画面外でカードをレンダリング（html2canvas用） */}
+      <div
+        style={{
+          position: 'fixed',
+          left: -10000,
+          top: 0,
+          pointerEvents: 'none',
+          opacity: 0,
+        }}
+      >
+        <div ref={cardRef}>
+          <ShareCard
+            title={title}
+            brandName={brandName}
+            summary={summary}
+            hideAmounts={hideAmounts}
+            entries={entries}
+          />
+        </div>
+      </div>
+
+      {/* モーダル */}
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center"
+        style={{ background: 'rgba(53, 65, 79, 0.6)' }}
+        onClick={onClose}
+      >
+        <div
+          className="w-full max-w-[430px] p-5 pb-8"
+          style={{ background: '#dfe6ee', borderRadius: '1.5rem 1.5rem 0 0' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-center mb-4">
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#bec4ca' }} />
+          </div>
+
+          <h2 className="text-lg font-bold mb-1 tracking-wider" style={{ color: '#005ba0' }}>
+            シェアする
+          </h2>
+          <p className="text-xs mb-5" style={{ color: 'rgba(0,0,0,0.5)' }}>
+            画像とテキストでXに投稿します
+          </p>
+
+          {/* プレビュー */}
+          <div
+            className="neu-pressed mb-5 overflow-hidden flex items-center justify-center p-2"
+            style={{ minHeight: 280, maxHeight: '60vh' }}
+          >
+            {previewUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewUrl}
+                alt="preview"
+                style={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain' }}
+              />
+            ) : (
+              <div className="text-xs" style={{ color: 'rgba(0,0,0,0.4)' }}>
+                プレビュー生成中...
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleShare}
+            disabled={busy}
+            className="neu-button w-full py-4 text-base mb-2 disabled:opacity-50"
+          >
+            {busy ? '生成中...' : 'Xにシェア'}
+          </button>
+          <button
+            onClick={onClose}
+            className="neu-soft tap w-full py-3 text-sm font-bold"
+            style={{ color: 'rgba(0,0,0,0.5)' }}
+          >
+            キャンセル
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
