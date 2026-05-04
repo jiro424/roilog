@@ -313,7 +313,7 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
           #ROILOG
         </div>
         <div style={{ fontSize: 18, color: COLOR.textFaint, letterSpacing: 1 }}>
-          Tournament Bankroll Tracker
+          Tournament ROI Tracker
         </div>
       </div>
     </div>
