@@ -7,7 +7,7 @@ import type { Tournament } from '@/lib/types'
 export default function TournamentPicker({ tournaments }: { tournaments: Tournament[] }) {
   const [selected, setSelected] = useState<Tournament | null>(null)
   const [query, setQuery] = useState('')
-  const [buyInFilter, setBuyInFilter] = useState<number | null>(null)
+  const [buyInFilters, setBuyInFilters] = useState<Set<number>>(new Set())
 
   const buyInOptions = useMemo(() => {
     const values = tournaments
@@ -19,7 +19,7 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return tournaments.filter((t) => {
-      if (buyInFilter !== null && t.default_buy_in !== buyInFilter) return false
+      if (buyInFilters.size > 0 && (t.default_buy_in === null || !buyInFilters.has(t.default_buy_in))) return false
       if (!q) return true
       const numQuery = q.replace(/^#/, '')
       const numStr = String(t.number)
@@ -29,7 +29,7 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
         numStr.startsWith(numQuery)
       )
     })
-  }, [tournaments, query, buyInFilter])
+  }, [tournaments, query, buyInFilters])
 
   if (tournaments.length === 0) {
     return (
@@ -94,22 +94,31 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
       {/* バイインフィルター */}
       {buyInOptions.length > 0 && (
         <div className="flex gap-2 flex-wrap mb-4">
-          {buyInOptions.map((v) => (
-            <button
-              key={v}
-              onClick={() => setBuyInFilter(buyInFilter === v ? null : v)}
-              className="px-3 py-1 rounded-full text-xs font-bold transition-colors"
-              style={{
-                background: buyInFilter === v ? '#005ba0' : undefined,
-                color: buyInFilter === v ? '#fff' : '#005ba0',
-                boxShadow: buyInFilter === v
-                  ? 'inset 0.15rem 0.15rem 0.3rem rgba(0,0,0,0.2)'
-                  : '0.2rem 0.2rem 0.4rem #bec4ca, -0.2rem -0.2rem 0.4rem #ffffff',
-              }}
-            >
-              ¥{v.toLocaleString()}
-            </button>
-          ))}
+          {buyInOptions.map((v) => {
+            const active = buyInFilters.has(v)
+            return (
+              <button
+                key={v}
+                onClick={() => {
+                  setBuyInFilters((prev) => {
+                    const next = new Set(prev)
+                    next.has(v) ? next.delete(v) : next.add(v)
+                    return next
+                  })
+                }}
+                className="px-3 py-1 rounded-full text-xs font-bold transition-colors"
+                style={{
+                  background: active ? '#005ba0' : undefined,
+                  color: active ? '#fff' : '#005ba0',
+                  boxShadow: active
+                    ? 'inset 0.15rem 0.15rem 0.3rem rgba(0,0,0,0.2)'
+                    : '0.2rem 0.2rem 0.4rem #bec4ca, -0.2rem -0.2rem 0.4rem #ffffff',
+                }}
+              >
+                ¥{v.toLocaleString()}
+              </button>
+            )
+          })}
         </div>
       )}
 
