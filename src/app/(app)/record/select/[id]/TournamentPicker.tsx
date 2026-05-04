@@ -7,12 +7,21 @@ import type { Tournament } from '@/lib/types'
 export default function TournamentPicker({ tournaments }: { tournaments: Tournament[] }) {
   const [selected, setSelected] = useState<Tournament | null>(null)
   const [query, setQuery] = useState('')
+  const [buyInFilter, setBuyInFilter] = useState<number | null>(null)
+
+  const buyInOptions = useMemo(() => {
+    const values = tournaments
+      .map((t) => t.default_buy_in)
+      .filter((v): v is number => v !== null)
+    return [...new Set(values)].sort((a, b) => a - b)
+  }, [tournaments])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return tournaments
-    const numQuery = q.replace(/^#/, '')
     return tournaments.filter((t) => {
+      if (buyInFilter !== null && t.default_buy_in !== buyInFilter) return false
+      if (!q) return true
+      const numQuery = q.replace(/^#/, '')
       const numStr = String(t.number)
       return (
         t.name.toLowerCase().includes(q) ||
@@ -20,7 +29,7 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
         numStr.startsWith(numQuery)
       )
     })
-  }, [tournaments, query])
+  }, [tournaments, query, buyInFilter])
 
   if (tournaments.length === 0) {
     return (
@@ -81,6 +90,28 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
           </button>
         )}
       </div>
+
+      {/* バイインフィルター */}
+      {buyInOptions.length > 0 && (
+        <div className="flex gap-2 flex-wrap mb-4">
+          {buyInOptions.map((v) => (
+            <button
+              key={v}
+              onClick={() => setBuyInFilter(buyInFilter === v ? null : v)}
+              className="px-3 py-1 rounded-full text-xs font-bold transition-colors"
+              style={{
+                background: buyInFilter === v ? '#005ba0' : undefined,
+                color: buyInFilter === v ? '#fff' : '#005ba0',
+                boxShadow: buyInFilter === v
+                  ? 'inset 0.15rem 0.15rem 0.3rem rgba(0,0,0,0.2)'
+                  : '0.2rem 0.2rem 0.4rem #bec4ca, -0.2rem -0.2rem 0.4rem #ffffff',
+              }}
+            >
+              ¥{v.toLocaleString()}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* リスト */}
       {filtered.length === 0 ? (
