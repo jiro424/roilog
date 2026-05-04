@@ -24,12 +24,11 @@ export default function MypageView({
 
   const handleSave = async () => {
     setSaving(true)
-    await supabase.from('profiles').upsert({
-      id: user.id,
+    await supabase.from('profiles').update({
       display_name: displayName || null,
       x_handle: xHandle || null,
       hide_amounts: hideAmounts,
-    })
+    }).eq('id', user.id)
     setSaving(false)
     setEditing(false)
     router.refresh()
