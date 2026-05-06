@@ -36,7 +36,7 @@ export default function MypageView({
 
   const handleToggleHide = async (next: boolean) => {
     setHideAmounts(next)
-    await supabase.from('profiles').upsert({ id: user.id, hide_amounts: next })
+    await supabase.from('profiles').update({ hide_amounts: next }).eq('id', user.id)
     router.refresh()
   }
 
