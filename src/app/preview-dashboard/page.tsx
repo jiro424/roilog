@@ -80,6 +80,7 @@ for (const block of SAMPLE_DATA) {
         number: i + 1,
         name,
         default_buy_in: buyIn,
+        scheduled_at: null,
         created_by: null,
         created_at: '',
         series: {

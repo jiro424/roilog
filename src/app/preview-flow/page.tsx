@@ -31,6 +31,7 @@ const SAMPLE_TOURNAMENTS: Tournament[] = SAMPLE_NAMES.map((name, i) => ({
   number: i + 1,
   name,
   default_buy_in: SAMPLE_BUYINS[i % SAMPLE_BUYINS.length],
+  scheduled_at: null,
   created_by: null,
   created_at: '',
 }))

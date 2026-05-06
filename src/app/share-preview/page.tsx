@@ -57,6 +57,7 @@ const mockEntries = (
         number: i + 1,
         name: sampleNames[i % sampleNames.length],
         default_buy_in: buyIn,
+        scheduled_at: null,
         created_by: null,
         created_at: '',
         series: {
