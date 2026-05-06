@@ -4,10 +4,16 @@ import { useMemo, useState } from 'react'
 import EntryForm from '@/components/EntryForm'
 import type { Tournament } from '@/lib/types'
 
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
 export default function TournamentPicker({ tournaments }: { tournaments: Tournament[] }) {
   const [selected, setSelected] = useState<Tournament | null>(null)
   const [query, setQuery] = useState('')
   const [buyInFilters, setBuyInFilters] = useState<Set<number>>(new Set())
+  const [dateFilters, setDateFilters] = useState<Set<string>>(new Set())
 
   const buyInOptions = useMemo(() => {
     const values = tournaments
@@ -16,10 +22,18 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
     return [...new Set(values)].sort((a, b) => a - b)
   }, [tournaments])
 
+  const dateOptions = useMemo(() => {
+    const values = tournaments
+      .map((t) => t.scheduled_at)
+      .filter((v): v is string => v !== null)
+    return [...new Set(values)].sort()
+  }, [tournaments])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return tournaments.filter((t) => {
       if (buyInFilters.size > 0 && (t.default_buy_in === null || !buyInFilters.has(t.default_buy_in))) return false
+      if (dateFilters.size > 0 && (t.scheduled_at === null || !dateFilters.has(t.scheduled_at))) return false
       if (!q) return true
       const numQuery = q.replace(/^#/, '')
       const numStr = String(t.number)
@@ -29,7 +43,7 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
         numStr.startsWith(numQuery)
       )
     })
-  }, [tournaments, query, buyInFilters])
+  }, [tournaments, query, buyInFilters, dateFilters])
 
   if (tournaments.length === 0) {
     return (
@@ -58,6 +72,12 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
         />
       </div>
     )
+  }
+
+  const toggleFilter = <T,>(set: Set<T>, val: T, setter: (s: Set<T>) => void) => {
+    const next = new Set(set)
+    next.has(val) ? next.delete(val) : next.add(val)
+    setter(next)
   }
 
   return (
@@ -91,6 +111,31 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
         )}
       </div>
 
+      {/* 日付フィルター */}
+      {dateOptions.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-3" style={{ scrollbarWidth: 'none' }}>
+          {dateOptions.map((d) => {
+            const active = dateFilters.has(d)
+            return (
+              <button
+                key={d}
+                onClick={() => toggleFilter(dateFilters, d, setDateFilters)}
+                className="px-3 py-1 rounded-full text-xs font-bold flex-shrink-0"
+                style={{
+                  background: active ? '#005ba0' : undefined,
+                  color: active ? '#fff' : '#005ba0',
+                  boxShadow: active
+                    ? 'inset 0.15rem 0.15rem 0.3rem rgba(0,0,0,0.2)'
+                    : '0.2rem 0.2rem 0.4rem #bec4ca, -0.2rem -0.2rem 0.4rem #ffffff',
+                }}
+              >
+                {formatDate(d)}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {/* バイインフィルター */}
       {buyInOptions.length > 0 && (
         <div className="flex gap-2 flex-wrap mb-4">
@@ -99,14 +144,8 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
             return (
               <button
                 key={v}
-                onClick={() => {
-                  setBuyInFilters((prev) => {
-                    const next = new Set(prev)
-                    next.has(v) ? next.delete(v) : next.add(v)
-                    return next
-                  })
-                }}
-                className="px-3 py-1 rounded-full text-xs font-bold transition-colors"
+                onClick={() => toggleFilter(buyInFilters, v, setBuyInFilters)}
+                className="px-3 py-1 rounded-full text-xs font-bold"
                 style={{
                   background: active ? '#005ba0' : undefined,
                   color: active ? '#fff' : '#005ba0',
@@ -154,8 +193,15 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
                   <div className="text-sm font-bold truncate" style={{ color: '#35414f' }}>
                     {t.name}
                   </div>
-                  <div className="text-xs mt-0.5" style={{ color: '#005ba0', fontWeight: 700 }}>
-                    {t.default_buy_in === null ? '無料・招待' : `¥${t.default_buy_in.toLocaleString()}`}
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs font-bold" style={{ color: '#005ba0' }}>
+                      {t.default_buy_in === null ? '無料・招待' : `¥${t.default_buy_in.toLocaleString()}`}
+                    </span>
+                    {t.scheduled_at && (
+                      <span className="text-xs" style={{ color: 'rgba(0,0,0,0.4)' }}>
+                        {formatDate(t.scheduled_at)}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>

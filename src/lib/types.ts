@@ -21,6 +21,7 @@ export type Tournament = {
   number: number
   name: string
   default_buy_in: number | null
+  scheduled_at: string | null
   created_by: string | null
   created_at: string
 }
