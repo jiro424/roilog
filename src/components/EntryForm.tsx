@@ -139,6 +139,9 @@ export default function EntryForm({ tournamentId, defaultBuyIn, tournamentLabel,
             style={{ color: '#35414f' }}
           />
         </div>
+        <p className="text-[10px] px-1 mt-1" style={{ color: 'rgba(0,0,0,0.4)' }}>
+          ※チケット利用の場合は、チケット獲得コスト＋施設利用料を入力
+        </p>
       </Field>
 
       <div>
