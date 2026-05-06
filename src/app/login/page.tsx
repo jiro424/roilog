@@ -37,9 +37,6 @@ export default function LoginPage() {
         Googleでログイン
       </button>
 
-      <p className="text-xs text-center" style={{ color: 'rgba(0,0,0,0.4)' }}>
-        ログインすることで利用規約に同意したものとみなします
-      </p>
     </div>
   )
 }
