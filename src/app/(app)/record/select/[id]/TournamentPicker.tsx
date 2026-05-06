@@ -113,6 +113,9 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
 
       {/* 日付フィルター */}
       {dateOptions.length > 0 && (
+        <div className="text-[10px] tracking-[0.3em] mb-2" style={{ color: 'rgba(0,0,0,0.4)' }}>日付で絞る</div>
+      )}
+      {dateOptions.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-2 mb-3" style={{ scrollbarWidth: 'none' }}>
           {dateOptions.map((d) => {
             const active = dateFilters.has(d)
@@ -137,6 +140,9 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
       )}
 
       {/* バイインフィルター */}
+      {buyInOptions.length > 0 && (
+        <div className="text-[10px] tracking-[0.3em] mb-2" style={{ color: 'rgba(0,0,0,0.4)' }}>金額で絞る</div>
+      )}
       {buyInOptions.length > 0 && (
         <div className="flex gap-2 flex-wrap mb-4">
           {buyInOptions.map((v) => {
