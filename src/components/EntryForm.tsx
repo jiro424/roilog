@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 type Props = {
   tournamentId: string
   defaultBuyIn: number
+  defaultScheduledAt?: string | null
   tournamentLabel: string
   existingEntry?: {
     id: string
@@ -21,7 +22,7 @@ type Props = {
   }
 }
 
-export default function EntryForm({ tournamentId, defaultBuyIn, tournamentLabel, existingEntry }: Props) {
+export default function EntryForm({ tournamentId, defaultBuyIn, defaultScheduledAt, tournamentLabel, existingEntry }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [saving, setSaving] = useState(false)
@@ -40,7 +41,7 @@ export default function EntryForm({ tournamentId, defaultBuyIn, tournamentLabel,
     existingEntry?.finish_position ?? ''
   )
   const [playedAt, setPlayedAt] = useState(
-    existingEntry?.played_at ?? new Date().toISOString().slice(0, 10)
+    existingEntry?.played_at ?? defaultScheduledAt ?? new Date().toISOString().slice(0, 10)
   )
   const [note, setNote] = useState(existingEntry?.note ?? '')
 

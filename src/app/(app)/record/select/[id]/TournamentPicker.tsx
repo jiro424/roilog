@@ -68,6 +68,7 @@ export default function TournamentPicker({ tournaments }: { tournaments: Tournam
         <EntryForm
           tournamentId={selected.id}
           defaultBuyIn={selected.default_buy_in ?? 0}
+          defaultScheduledAt={selected.scheduled_at}
           tournamentLabel={`#${selected.number} ${selected.name}`}
         />
       </div>
