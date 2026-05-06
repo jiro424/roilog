@@ -45,13 +45,26 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
   }, [open])
 
   const buildText = () => {
+    const roi = summary.roi
+    const roiStr = roi === null ? '—' : `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`
+    const isWin = roi !== null && roi > 0
+    const isLose = roi !== null && roi < 0
+
     const lines = [
       `${brandName ? `[${brandName}] ` : ''}${title}`,
       ``,
-      `${summary.entryCount}エントリー / ${summary.cashCount}インマネ`,
-      `ROI ${summary.roi === null ? '—' : `${summary.roi >= 0 ? '+' : ''}${summary.roi.toFixed(1)}%`}`,
+      isWin
+        ? `💰 ROI ${roiStr} 🔥`
+        : isLose
+        ? `😭 ROI ${roiStr}`
+        : `ROI ${roiStr}`,
       ``,
-      `#ROILOG`,
+      `🎰 ${summary.entryCount}エントリー / ${summary.cashCount}インマネ`,
+      ``,
+      `🃏 ROILOG - Tournament ROI Tracker`,
+      `https://roilog.vercel.app`,
+      ``,
+      `#ROILOG #ポーカー`,
     ]
     return lines.join('\n')
   }
