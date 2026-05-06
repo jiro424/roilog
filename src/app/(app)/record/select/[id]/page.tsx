@@ -18,7 +18,7 @@ export default async function SelectTournamentPage({
 
   const { data: tournaments } = await supabase
     .from('tournaments')
-    .select('*')
+    .select('id, series_id, number, name, default_buy_in, scheduled_at, created_by, created_at')
     .eq('series_id', id)
     .order('number', { ascending: true })
 
