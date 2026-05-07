@@ -55,18 +55,17 @@ export default function LoginPage() {
             Xでログイン
           </button>
           <div
-            className="neu-soft p-5 text-center"
+            className="neu-soft p-4"
             style={{ borderLeft: '3px solid #c44747' }}
           >
-            <div className="text-sm font-bold mb-2" style={{ color: '#c44747' }}>
-              Googleログインはご利用いただけません
+            <div className="text-xs font-bold mb-3" style={{ color: '#c44747' }}>
+              Xアプリからのアクセスを検知しました
             </div>
-            <div className="text-xs leading-relaxed" style={{ color: '#35414f' }}>
-              Xアプリ内ブラウザからのGoogleログインはブロックされます。
-              <br /><br />
-              上の「Xでログイン」をお使いいただくか、下部URLバーの <span className="font-bold">「…」</span> →{' '}
-              <span className="font-bold">「ブラウザで開く」</span> を選択するか、
-              <span className="font-bold">「リンクをコピー」</span> してSafariなどのブラウザで開いてからアクセスしてください。
+            <div className="text-xs leading-relaxed space-y-2" style={{ color: '#35414f' }}>
+              <p>XアプリのブラウザではGoogleログインがブロックされます。以下のいずれかでログインしてください：</p>
+              <p><span className="font-bold">① 上のボタンからXアカウントでログイン</span></p>
+              <p>② 下部の <span className="font-bold">「…」→「ブラウザで開く」</span> を選択</p>
+              <p>③ <span className="font-bold">「リンクをコピー」</span> してSafariなどで開く</p>
             </div>
           </div>
         </div>
