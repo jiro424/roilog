@@ -47,7 +47,8 @@ export default function LoginPage() {
               Xアプリ内ブラウザからのGoogleログインはブロックされます。
               <br /><br />
               下部URLバーの <span className="font-bold">「…」</span> →{' '}
-              <span className="font-bold">「ブラウザで開く」</span> を選択してからアクセスしてください。
+              <span className="font-bold">「ブラウザで開く」</span> を選択するか、
+              <span className="font-bold">「リンクをコピー」</span> してSafariなどのブラウザで開いてからアクセスしてください。
             </div>
           </div>
         </div>
