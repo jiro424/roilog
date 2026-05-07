@@ -46,7 +46,7 @@ export default function LoginPage() {
             <div className="text-xs leading-relaxed" style={{ color: '#35414f' }}>
               Xアプリ内ブラウザからのGoogleログインはブロックされます。
               <br /><br />
-              右上の <span className="font-bold">「…」</span> →{' '}
+              下部URLバーの <span className="font-bold">「…」</span> →{' '}
               <span className="font-bold">「ブラウザで開く」</span> を選択してからアクセスしてください。
             </div>
           </div>
