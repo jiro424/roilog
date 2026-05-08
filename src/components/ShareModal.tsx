@@ -24,6 +24,7 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
   const [cashOnly, setCashOnly] = useState(false)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [pickedSrc, setPickedSrc] = useState<string | null>(null)
+  const [saveOverlayUrl, setSaveOverlayUrl] = useState<string | null>(null)
 
   // インマネが0件のときは cashOnly は無効化
   const cashOnlyAvailable = summary.cashCount > 0
@@ -103,27 +104,23 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
     )
   }
 
-  // 画像を保存（写真フォルダorダウンロード）
+  // 画像を保存（iOS:長押し保存オーバーレイ / 他:ダウンロード）
   const handleSaveImage = async () => {
     setBusy(true)
     try {
       const blob = await renderToBlob()
       if (!blob) return
-      const file = new File([blob], 'roilog.png', { type: 'image/png' })
 
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
-      // iOS: 共有シートを開いて「画像を保存」を選んでもらう（写真Appに保存される）
-      if (isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file] })
-          return
-        } catch {
-          // キャンセル等→フォールバックへ
-        }
+      if (isIOS) {
+        // 画像を全画面表示 → ユーザーが長押し→「写真に追加」で確実にPhotosへ
+        const url = URL.createObjectURL(blob)
+        setSaveOverlayUrl(url)
+        return
       }
 
-      // それ以外: ダウンロード
+      // 他環境: 通常ダウンロード
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -135,6 +132,11 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
     } finally {
       setBusy(false)
     }
+  }
+
+  const closeSaveOverlay = () => {
+    if (saveOverlayUrl) URL.revokeObjectURL(saveOverlayUrl)
+    setSaveOverlayUrl(null)
   }
 
   const handleShare = async () => {
@@ -366,6 +368,37 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
             setPickedSrc(null)
           }}
         />
+      )}
+
+      {/* iOS用：画像を長押しで写真Appに保存するオーバーレイ */}
+      {saveOverlayUrl && (
+        <div
+          className="fixed inset-0 z-[60] flex flex-col"
+          style={{ background: 'rgba(0,0,0,0.92)' }}
+        >
+          <div className="flex items-center justify-between px-4 py-3" style={{ color: '#fff' }}>
+            <button onClick={closeSaveOverlay} className="text-sm py-2 px-3 font-bold">
+              閉じる
+            </button>
+            <div className="text-xs tracking-wider opacity-70">画像を保存</div>
+            <div className="w-12" />
+          </div>
+          <div className="flex-1 overflow-auto px-4 pb-4 flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={saveOverlayUrl}
+              alt=""
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 8 }}
+            />
+          </div>
+          <div className="px-6 py-5 text-center" style={{ background: '#1a1a1a', color: '#fff' }}>
+            <div className="text-sm font-bold mb-2">📸 画像を長押しして「写真に追加」</div>
+            <div className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              画像をしばらく押し続けるとメニューが出ます。<br />
+              「写真に追加」を選ぶと写真Appに保存されます。
+            </div>
+          </div>
+        </div>
       )}
     </>
   )
