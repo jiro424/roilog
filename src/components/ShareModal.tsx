@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 import ShareCard from './ShareCard'
+import PhotoCropper from './PhotoCropper'
 import type { RoiSummary, EntryWithRels } from '@/lib/roi'
 
 type Props = {
@@ -17,9 +18,12 @@ type Props = {
 
 export default function ShareModal({ open, onClose, title, brandName, summary, hideAmounts, entries }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [cashOnly, setCashOnly] = useState(false)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [pickedSrc, setPickedSrc] = useState<string | null>(null)
 
   // インマネが0件のときは cashOnly は無効化
   const cashOnlyAvailable = summary.cashCount > 0
@@ -29,6 +33,8 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
     if (!open) {
       setPreviewUrl(null)
       setCashOnly(false)
+      setPhotoUrl(null)
+      setPickedSrc(null)
       return
     }
     let active = true
@@ -48,7 +54,18 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
       }
     }, 200)
     return () => { active = false; clearTimeout(t) }
-  }, [open, effectiveCashOnly])
+  }, [open, effectiveCashOnly, photoUrl])
+
+  const handlePickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setPickedSrc(reader.result)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
 
   const buildText = () => {
     const head = `${brandName ? `[${brandName}] ` : ''}${title}`
@@ -138,6 +155,7 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
             hideAmounts={hideAmounts}
             entries={entries}
             cashOnly={effectiveCashOnly}
+            photoUrl={photoUrl ?? undefined}
           />
         </div>
       </div>
@@ -190,6 +208,52 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
             </button>
           </div>
 
+          {/* 写真追加/編集 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handlePickFile}
+            className="hidden"
+          />
+          {!photoUrl ? (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="neu-soft tap w-full py-2.5 mb-4 text-xs font-bold flex items-center justify-center gap-2"
+              style={{ color: 'rgba(0,0,0,0.6)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M3 7h3l2-2h8l2 2h3v12H3V7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                <circle cx="12" cy="13" r="4" stroke="currentColor" strokeWidth="2" />
+              </svg>
+              写真を追加
+            </button>
+          ) : (
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setPickedSrc(photoUrl)}
+                className="neu-soft tap flex-1 py-2.5 text-xs font-bold"
+                style={{ color: 'rgba(0,0,0,0.6)' }}
+              >
+                トリミング再調整
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="neu-soft tap flex-1 py-2.5 text-xs font-bold"
+                style={{ color: 'rgba(0,0,0,0.6)' }}
+              >
+                写真を変更
+              </button>
+              <button
+                onClick={() => setPhotoUrl(null)}
+                className="neu-soft tap py-2.5 px-4 text-xs font-bold"
+                style={{ color: '#c44747' }}
+              >
+                削除
+              </button>
+            </div>
+          )}
+
           {/* プレビュー */}
           <div
             className="neu-pressed mb-5 overflow-hidden flex items-center justify-center p-2"
@@ -232,6 +296,18 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
           </button>
         </div>
       </div>
+
+      {pickedSrc && (
+        <PhotoCropper
+          imageSrc={pickedSrc}
+          aspect={420 / 380}
+          onCancel={() => setPickedSrc(null)}
+          onCropped={(dataUrl) => {
+            setPhotoUrl(dataUrl)
+            setPickedSrc(null)
+          }}
+        />
+      )}
     </>
   )
 }
