@@ -354,7 +354,7 @@ function Hero({
           fontFamily: FONT_DISPLAY,
           fontSize: mainSize,
           letterSpacing: 0,
-          lineHeight: 1,
+          lineHeight: 1.05,
           color: mainColor,
           fontWeight: 400,
         }}
@@ -388,11 +388,11 @@ function Hero({
         {/* 右：メイン + stats */}
         <div
           style={{
-            padding: '36px 40px',
+            padding: '32px 40px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            gap: 16,
+            gap: 12,
           }}
         >
           {mainBlock}
@@ -439,7 +439,7 @@ function StatCell({
     <div
       style={{
         textAlign: 'center',
-        padding: small ? '6px 8px' : '18px 8px',
+        padding: small ? '10px 8px' : '18px 8px',
       }}
     >
       <div
