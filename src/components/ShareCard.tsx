@@ -138,18 +138,18 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
             />
           </div>
           {/* 右：ROI + stats */}
-          <div style={{ padding: '52px 64px 52px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 20, letterSpacing: 6, color: COLOR.textDim, marginBottom: 8 }}>
+          <div style={{ padding: '40px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: 6, color: COLOR.textDim, marginBottom: 8 }}>
               RETURN ON INVESTMENT
             </div>
             <div style={{ fontFamily: FONT_DISPLAY, fontSize: 160, letterSpacing: 0, lineHeight: 1, color: roiColor, fontWeight: 400 }}>
               {formatRoi(summary.roi)}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0 24px', marginTop: 28 }}>
-              <Stat label="ENTRIES" value={`${summary.entryCount}`} small />
-              <Stat label="CASHES" value={`${summary.cashCount}`} small />
-              <Stat label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small />
-              <Stat label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0 20px', marginTop: 28, width: '100%' }}>
+              <Stat label="ENTRIES" value={`${summary.entryCount}`} small center />
+              <Stat label="CASHES" value={`${summary.cashCount}`} small center />
+              <Stat label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small center />
+              <Stat label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small center />
             </div>
           </div>
         </div>
@@ -361,13 +361,15 @@ function Stat({
   label,
   value,
   small,
+  center,
 }: {
   label: string
   value: string
   small?: boolean
+  center?: boolean
 }) {
   return (
-    <div>
+    <div style={{ textAlign: center ? 'center' : 'left' }}>
       <div
         style={{
           fontFamily: FONT_DISPLAY,

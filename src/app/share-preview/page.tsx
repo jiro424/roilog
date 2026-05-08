@@ -99,7 +99,7 @@ const summarize = (entries: EntryWithRels[]): RoiSummary => {
   }
 }
 
-const SAMPLE_PHOTO = 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&q=80'
+const SAMPLE_PHOTO = 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=800&q=80'
 
 export default function SharePreviewPage() {
   const [share, setShare] = useState<{
