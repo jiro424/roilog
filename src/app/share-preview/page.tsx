@@ -109,6 +109,8 @@ export default function SharePreviewPage() {
     entries: EntryWithRels[]
   } | null>(null)
   const [showPhotoPreview, setShowPhotoPreview] = useState(false)
+  const [showCashOnly, setShowCashOnly] = useState(false)
+  const [showCashOnlyPhoto, setShowCashOnlyPhoto] = useState(false)
 
   const open = (count: number, title: string, brandName?: string) => {
     const entries = mockEntries(count, brandName ?? 'JOPT', title)
@@ -175,6 +177,54 @@ export default function SharePreviewPage() {
                 summary={sampleSummary}
                 hideAmounts={false}
                 entries={sampleEntries}
+                photoUrl={SAMPLE_PHOTO}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* インマネのみプレビュー */}
+      <div className="pt-4 space-y-3">
+        <div className="text-[10px] tracking-[0.3em] mb-1" style={{ color: 'rgba(0,0,0,0.4)' }}>
+          インマネのみ表示レイアウト（検討中）
+        </div>
+        <button
+          onClick={() => setShowCashOnly(!showCashOnly)}
+          className="neu-button w-full py-4"
+        >
+          {showCashOnly ? '隠す' : '🏆 インマネのみ（写真なし）'}
+        </button>
+        {showCashOnly && (
+          <div className="overflow-x-auto">
+            <div style={{ transform: 'scale(0.35)', transformOrigin: 'top left', width: 1080, marginBottom: -700 }}>
+              <ShareCard
+                title="JOPT GF 2026"
+                brandName="JOPT"
+                summary={sampleSummary}
+                hideAmounts={false}
+                entries={sampleEntries}
+                cashOnly
+              />
+            </div>
+          </div>
+        )}
+        <button
+          onClick={() => setShowCashOnlyPhoto(!showCashOnlyPhoto)}
+          className="neu-button w-full py-4"
+        >
+          {showCashOnlyPhoto ? '隠す' : '📷🏆 インマネのみ（写真あり）'}
+        </button>
+        {showCashOnlyPhoto && (
+          <div className="overflow-x-auto">
+            <div style={{ transform: 'scale(0.35)', transformOrigin: 'top left', width: 1080, marginBottom: -700 }}>
+              <ShareCard
+                title="JOPT GF 2026"
+                brandName="JOPT"
+                summary={sampleSummary}
+                hideAmounts={false}
+                entries={sampleEntries}
+                cashOnly
                 photoUrl={SAMPLE_PHOTO}
               />
             </div>

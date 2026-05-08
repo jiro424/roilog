@@ -7,6 +7,7 @@ type Props = {
   hideAmounts: boolean
   entries?: EntryWithRels[]
   photoUrl?: string
+  cashOnly?: boolean
 }
 
 const WIDTH = 1080
@@ -40,7 +41,7 @@ const COLOR = {
 const FONT_DISPLAY = 'var(--font-bebas), "Hiragino Kaku Gothic Pro", sans-serif'
 const FONT_BODY = 'var(--font-outfit), var(--font-noto-jp), "Hiragino Kaku Gothic Pro", sans-serif'
 
-export default function ShareCard({ title, brandName, summary, hideAmounts, entries = [], photoUrl }: Props) {
+export default function ShareCard({ title, brandName, summary, hideAmounts, entries = [], photoUrl, cashOnly }: Props) {
   const roiColor =
     summary.profit > 0 ? COLOR.green : summary.profit < 0 ? COLOR.red : COLOR.textDim
 
@@ -53,9 +54,14 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
     return bProfit - aProfit
   })
 
+  // cashOnlyモードではインマネしたエントリーのみ表示
+  const displayEntries = cashOnly
+    ? sortedEntries.filter((e) => e.cash_amount > 0)
+    : sortedEntries
+
   const MAX_ROWS = 16
-  const visibleEntries = sortedEntries.slice(0, MAX_ROWS)
-  const remaining = sortedEntries.length - visibleEntries.length
+  const visibleEntries = displayEntries.slice(0, MAX_ROWS)
+  const remaining = displayEntries.length - visibleEntries.length
 
   const listH =
     visibleEntries.length === 0
@@ -118,8 +124,35 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
         </div>
       </div>
 
-      {/* HERO */}
-      {photoUrl ? (
+      {/* HERO - cashOnly */}
+      {cashOnly && (
+        photoUrl ? (
+          <div style={{ background: COLOR.bgSoft, display: 'grid', gridTemplateColumns: '420px 1fr', minHeight: HERO_H }}>
+            {/* 左：写真 */}
+            <div style={{ overflow: 'hidden' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            </div>
+            {/* 右：stats */}
+            <div style={{ padding: '40px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
+              <BigStat label="ENTRIES" value={`${summary.entryCount}`} />
+              <BigStat label="CASHES" value={`${summary.cashCount}`} color={COLOR.green} />
+              <BigStat label="PRIZE" value={formatYen(summary.totalCash, hideAmounts)} color={COLOR.green} />
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '60px 64px 70px', background: COLOR.bgSoft, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 80, minHeight: HERO_H }}>
+            <BigStat label="ENTRIES" value={`${summary.entryCount}`} large />
+            <div style={{ width: 1, height: 120, background: COLOR.border }} />
+            <BigStat label="CASHES" value={`${summary.cashCount}`} color={COLOR.green} large />
+            <div style={{ width: 1, height: 120, background: COLOR.border }} />
+            <BigStat label="PRIZE" value={formatYen(summary.totalCash, hideAmounts)} color={COLOR.green} large />
+          </div>
+        )
+      )}
+
+      {/* HERO - 通常（ROI表示） */}
+      {!cashOnly && photoUrl ? (
         <div
           style={{
             background: COLOR.bgSoft,
@@ -236,10 +269,10 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
                 color: COLOR.text,
               }}
             >
-              TOURNAMENTS
+              {cashOnly ? 'CASHED TOURNAMENTS' : 'TOURNAMENTS'}
             </div>
             <div style={{ fontSize: 22, color: COLOR.textDim, fontWeight: 600 }}>
-              {entries.length} EVENTS
+              {cashOnly ? `${visibleEntries.length} CASHES` : `${entries.length} EVENTS`}
             </div>
           </div>
 
@@ -352,6 +385,29 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
         <div style={{ fontSize: 18, color: COLOR.textFaint, letterSpacing: 1 }}>
           Tournament ROI Tracker
         </div>
+      </div>
+    </div>
+  )
+}
+
+function BigStat({
+  label,
+  value,
+  color,
+  large,
+}: {
+  label: string
+  value: string
+  color?: string
+  large?: boolean
+}) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: 5, color: COLOR.textDim, marginBottom: 8 }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: FONT_DISPLAY, fontSize: large ? 100 : 72, letterSpacing: 1, lineHeight: 1, color: color ?? COLOR.text }}>
+        {value}
       </div>
     </div>
   )
