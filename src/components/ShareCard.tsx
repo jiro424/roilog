@@ -344,7 +344,7 @@ function Hero({
           fontSize: photoUrl ? 22 : 28,
           letterSpacing: 6,
           color: COLOR.textDim,
-          marginBottom: photoUrl ? 8 : 12,
+          marginBottom: photoUrl ? 4 : 8,
         }}
       >
         {mainLabel}
@@ -388,11 +388,11 @@ function Hero({
         {/* 右：メイン + stats */}
         <div
           style={{
-            padding: '40px 40px 32px',
+            padding: '20px 40px 24px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
-            gap: 16,
+            gap: 14,
           }}
         >
           {mainBlock}
@@ -408,10 +408,10 @@ function Hero({
     <div
       style={{
         background: COLOR.bgSoft,
-        padding: '36px 64px 56px',
+        padding: '16px 64px 56px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 32,
+        gap: 28,
       }}
     >
       {mainBlock}
