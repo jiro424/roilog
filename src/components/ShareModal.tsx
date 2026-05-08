@@ -88,20 +88,60 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
     return lines.join('\n')
   }
 
-  const handleShare = async () => {
-    if (!cardRef.current) return
+  // 共有用のCanvas→Blob生成（共通処理）
+  const renderToBlob = async (): Promise<Blob | null> => {
+    if (!cardRef.current) return null
+    await document.fonts.ready
+    const canvas = await html2canvas(cardRef.current, {
+      backgroundColor: '#dfe6ee',
+      scale: 2,
+      logging: false,
+      useCORS: true,
+    })
+    return await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b!), 'image/png')
+    )
+  }
+
+  // 画像を保存（写真フォルダorダウンロード）
+  const handleSaveImage = async () => {
     setBusy(true)
     try {
-      await document.fonts.ready
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#dfe6ee',
-        scale: 2,
-        logging: false,
-        useCORS: true,
-      })
-      const blob: Blob = await new Promise((resolve) =>
-        canvas.toBlob((b) => resolve(b!), 'image/png')
-      )
+      const blob = await renderToBlob()
+      if (!blob) return
+      const file = new File([blob], 'roilog.png', { type: 'image/png' })
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+
+      // iOS: 共有シートを開いて「画像を保存」を選んでもらう（写真Appに保存される）
+      if (isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] })
+          return
+        } catch {
+          // キャンセル等→フォールバックへ
+        }
+      }
+
+      // それ以外: ダウンロード
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'roilog.png'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleShare = async () => {
+    setBusy(true)
+    try {
+      const blob = await renderToBlob()
+      if (!blob) return
       const file = new File([blob], 'roilog.png', { type: 'image/png' })
       const text = buildText()
 
@@ -292,6 +332,20 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
               </span>
             )}
           </button>
+          <button
+            onClick={handleSaveImage}
+            disabled={busy}
+            className="neu-soft tap w-full py-3 text-sm font-bold mb-2 disabled:opacity-50 flex items-center justify-center gap-2"
+            style={{ color: '#35414f' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            画像を保存
+          </button>
+          <p className="text-[11px] leading-relaxed mb-3 px-1" style={{ color: 'rgba(0,0,0,0.45)' }}>
+            ※ ポスト時に画像が添付されない場合は、先に「画像を保存」で写真に保存してから X 投稿画面で添付してください
+          </p>
           <button
             onClick={onClose}
             className="neu-soft tap w-full py-3 text-sm font-bold"
