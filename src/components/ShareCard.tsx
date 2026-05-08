@@ -392,7 +392,7 @@ function Hero({
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            gap: 28,
+            gap: 16,
           }}
         >
           {mainBlock}
@@ -439,7 +439,7 @@ function StatCell({
     <div
       style={{
         textAlign: 'center',
-        padding: '18px 8px',
+        padding: small ? '6px 8px' : '18px 8px',
       }}
     >
       <div
