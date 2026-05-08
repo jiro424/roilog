@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import ShareModal from '@/components/ShareModal'
 import ShareCard from '@/components/ShareCard'
+import PhotoCropper from '@/components/PhotoCropper'
 import type { RoiSummary, EntryWithRels } from '@/lib/roi'
 
 const mockEntries = (
@@ -112,6 +113,23 @@ export default function SharePreviewPage() {
   const [showCashOnly, setShowCashOnly] = useState(false)
   const [showCashOnlyPhoto, setShowCashOnlyPhoto] = useState(false)
 
+  // ユーザー写真アップロード＋トリミング
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [pickedSrc, setPickedSrc] = useState<string | null>(null)   // 選択直後の元画像
+  const [croppedSrc, setCroppedSrc] = useState<string | null>(null) // トリミング後のDataURL
+
+  const handlePickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setPickedSrc(reader.result)
+    }
+    reader.readAsDataURL(file)
+    // 同じファイルを再選択できるようにリセット
+    e.target.value = ''
+  }
+
   const open = (count: number, title: string, brandName?: string) => {
     const entries = mockEntries(count, brandName ?? 'JOPT', title)
     setShare({ title, brandName, summary: summarize(entries), entries })
@@ -156,6 +174,56 @@ export default function SharePreviewPage() {
       >
         超過（20トナメ → 16表示＋他4件）
       </button>
+
+      {/* 自分の写真でトリミング体験 */}
+      <div className="pt-4 space-y-3">
+        <div className="text-[10px] tracking-[0.3em] mb-1" style={{ color: 'rgba(0,0,0,0.4)' }}>
+          写真アップロード＋トリミング（プロトタイプ）
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handlePickFile}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="neu-button w-full py-4"
+        >
+          📸 写真を選んでトリミング
+        </button>
+        {croppedSrc && (
+          <>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPickedSrc(croppedSrc)}
+                className="neu-button flex-1 py-3 text-sm"
+              >
+                トリミング再調整
+              </button>
+              <button
+                onClick={() => setCroppedSrc(null)}
+                className="neu-button flex-1 py-3 text-sm"
+              >
+                クリア
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <div style={{ transform: 'scale(0.35)', transformOrigin: 'top left', width: 1080, marginBottom: -700 }}>
+                <ShareCard
+                  title="JOPT GF 2026"
+                  brandName="JOPT"
+                  summary={sampleSummary}
+                  hideAmounts={false}
+                  entries={sampleEntries}
+                  photoUrl={croppedSrc}
+                />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* 写真ありプレビュー */}
       <div className="pt-4">
@@ -241,6 +309,18 @@ export default function SharePreviewPage() {
         hideAmounts={false}
         entries={share?.entries}
       />
+
+      {pickedSrc && (
+        <PhotoCropper
+          imageSrc={pickedSrc}
+          aspect={420 / 380}
+          onCancel={() => setPickedSrc(null)}
+          onCropped={(dataUrl) => {
+            setCroppedSrc(dataUrl)
+            setPickedSrc(null)
+          }}
+        />
+      )}
     </div>
   )
 }
