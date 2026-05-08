@@ -12,7 +12,9 @@ type Props = {
 
 const WIDTH = 1080
 const HEADER_H = 220
-const HERO_H = 380
+// Hero の実際のレンダリング高さ（mainBlock + countStats + moneyStats）
+// 写真ありモードと cashOnly では下振れするが、minHeight が一番大きいケースをカバーする
+const HERO_H = 640
 const FOOTER_H = 140
 const ROW_H = 76
 const LIST_PADDING_Y = 56
@@ -73,7 +75,7 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
     <div
       style={{
         width: WIDTH,
-        height: totalH,
+        minHeight: totalH,
         background: COLOR.bg,
         fontFamily: FONT_BODY,
         color: COLOR.text,
@@ -364,17 +366,19 @@ function Hero({
   )
 
   if (photoUrl) {
+    // 写真ありの場合：写真は420x480固定（PhotoCropperの aspect も合わせる）
+    const PHOTO_H = 480
     return (
       <div
         style={{
           background: COLOR.bgSoft,
           display: 'grid',
           gridTemplateColumns: '420px 1fr',
-          minHeight: HERO_H,
+          height: PHOTO_H,
         }}
       >
         {/* 左：写真 */}
-        <div style={{ overflow: 'hidden' }}>
+        <div style={{ overflow: 'hidden', width: 420, height: PHOTO_H }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={photoUrl}
@@ -389,7 +393,7 @@ function Hero({
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            gap: 24,
+            gap: 20,
           }}
         >
           {mainBlock}
@@ -409,8 +413,7 @@ function Hero({
         padding: '52px 64px 56px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 36,
-        minHeight: HERO_H,
+        gap: 32,
       }}
     >
       {mainBlock}

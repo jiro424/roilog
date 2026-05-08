@@ -313,7 +313,7 @@ export default function SharePreviewPage() {
       {pickedSrc && (
         <PhotoCropper
           imageSrc={pickedSrc}
-          aspect={420 / 380}
+          aspect={420 / 480}
           onCancel={() => setPickedSrc(null)}
           onCropped={(dataUrl) => {
             setCroppedSrc(dataUrl)
