@@ -19,10 +19,16 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
   const cardRef = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [cashOnly, setCashOnly] = useState(false)
+
+  // インマネが0件のときは cashOnly は無効化
+  const cashOnlyAvailable = summary.cashCount > 0
+  const effectiveCashOnly = cashOnly && cashOnlyAvailable
 
   useEffect(() => {
     if (!open) {
       setPreviewUrl(null)
+      setCashOnly(false)
       return
     }
     let active = true
@@ -42,20 +48,26 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
       }
     }, 200)
     return () => { active = false; clearTimeout(t) }
-  }, [open])
+  }, [open, effectiveCashOnly])
 
   const buildText = () => {
-    const roi = summary.roi
-    const roiStr = roi === null ? '—' : `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`
-
-    const lines = [
-      `${brandName ? `[${brandName}] ` : ''}${title}`,
-      `🎰 ${summary.entryCount}エントリー / ${summary.cashCount}インマネ`,
-      `📈 ROI ${roiStr}`,
-      `🃏 ROILOG - Tournament ROI Tracker`,
-      `https://roilog.vercel.app`,
-      `#ROILOG #ポーカー`,
-    ]
+    const head = `${brandName ? `[${brandName}] ` : ''}${title}`
+    const lines = effectiveCashOnly
+      ? [
+          head,
+          `🏆 ${summary.cashCount}インマネ${hideAmounts ? '' : ` / 獲得 ¥${summary.totalCash.toLocaleString()}`}`,
+          `🃏 ROILOG - Tournament ROI Tracker`,
+          `https://roilog.vercel.app`,
+          `#ROILOG #ポーカー`,
+        ]
+      : [
+          head,
+          `🎰 ${summary.entryCount}エントリー / ${summary.cashCount}インマネ`,
+          `📈 ROI ${summary.roi === null ? '—' : `${summary.roi >= 0 ? '+' : ''}${summary.roi.toFixed(1)}%`}`,
+          `🃏 ROILOG - Tournament ROI Tracker`,
+          `https://roilog.vercel.app`,
+          `#ROILOG #ポーカー`,
+        ]
     return lines.join('\n')
   }
 
@@ -125,6 +137,7 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
             summary={summary}
             hideAmounts={hideAmounts}
             entries={entries}
+            cashOnly={effectiveCashOnly}
           />
         </div>
       </div>
@@ -147,9 +160,35 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
           <h2 className="text-lg font-bold mb-1 tracking-wider" style={{ color: '#005ba0' }}>
             シェアする
           </h2>
-          <p className="text-xs mb-5" style={{ color: 'rgba(0,0,0,0.5)' }}>
+          <p className="text-xs mb-4" style={{ color: 'rgba(0,0,0,0.5)' }}>
             画像とテキストでXに投稿します
           </p>
+
+          {/* モード切替 */}
+          <div className="neu-pressed p-1 mb-4 flex gap-1 rounded-full">
+            <button
+              onClick={() => setCashOnly(false)}
+              className="flex-1 py-2 text-xs font-bold rounded-full transition-all"
+              style={{
+                background: !effectiveCashOnly ? '#005ba0' : 'transparent',
+                color: !effectiveCashOnly ? '#fff' : 'rgba(0,0,0,0.5)',
+              }}
+            >
+              ROI表示
+            </button>
+            <button
+              onClick={() => setCashOnly(true)}
+              disabled={!cashOnlyAvailable}
+              className="flex-1 py-2 text-xs font-bold rounded-full transition-all disabled:opacity-40"
+              style={{
+                background: effectiveCashOnly ? '#005ba0' : 'transparent',
+                color: effectiveCashOnly ? '#fff' : 'rgba(0,0,0,0.5)',
+              }}
+              title={cashOnlyAvailable ? '' : 'インマネしたエントリーがありません'}
+            >
+              インマネのみ
+            </button>
+          </div>
 
           {/* プレビュー */}
           <div
