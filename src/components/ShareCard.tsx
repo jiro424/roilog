@@ -124,12 +124,21 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
           style={{
             background: COLOR.bgSoft,
             display: 'grid',
-            gridTemplateColumns: '1fr 420px',
+            gridTemplateColumns: '420px 1fr',
             minHeight: HERO_H,
           }}
         >
-          {/* 左：ROI + stats */}
-          <div style={{ padding: '52px 48px 52px 64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          {/* 左：写真 */}
+          <div style={{ overflow: 'hidden' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photoUrl}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          </div>
+          {/* 右：ROI + stats */}
+          <div style={{ padding: '52px 64px 52px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <div style={{ fontFamily: FONT_DISPLAY, fontSize: 20, letterSpacing: 6, color: COLOR.textDim, marginBottom: 8 }}>
               RETURN ON INVESTMENT
             </div>
@@ -142,15 +151,6 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
               <Stat label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small />
               <Stat label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small />
             </div>
-          </div>
-          {/* 右：写真 */}
-          <div style={{ overflow: 'hidden' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photoUrl}
-              alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
           </div>
         </div>
       ) : (
