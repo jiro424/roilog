@@ -167,8 +167,13 @@ export default function ShareModal({ open, onClose, title, brandName, summary, h
         onClick={onClose}
       >
         <div
-          className="w-full max-w-[430px] p-5 pb-8"
-          style={{ background: '#dfe6ee', borderRadius: '1.5rem 1.5rem 0 0' }}
+          className="w-full max-w-[430px] p-5 pb-8 overflow-y-auto"
+          style={{
+            background: '#dfe6ee',
+            borderRadius: '1.5rem 1.5rem 0 0',
+            maxHeight: '95dvh',
+            WebkitOverflowScrolling: 'touch',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-center mb-4">

@@ -307,36 +307,32 @@ function Hero({
   // 写真ありはスペースが狭いので少し小さく
   const mainSize = photoUrl ? (cashOnly ? 110 : 140) : (cashOnly ? 140 : 170)
 
-  // ENTRIES/CASHES/CASH RATE と INVEST/CASH を同じ3列グリッドに揃えて
-  // 列の中心位置を一致させる（INVEST=col1, 中央=空, CASH=col3）
+  // 3等分のflex列で統一し、INVEST/CASHを左端と右端に配置
+  // (html2canvasのfr単位対応が不確実なため、明示的なwidth指定を使用)
+  const COL_W = '33.3333%'
   const countStats = (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gap: 0,
-        width: '100%',
-      }}
-    >
-      <StatCell label="ENTRIES" value={`${summary.entryCount}`} small={!!photoUrl} />
-      <StatCell label="CASHES" value={`${summary.cashCount}`} small={!!photoUrl} />
-      <StatCell label="CASH RATE" value={formatRate(summary.cashRate)} small={!!photoUrl} />
+    <div style={{ display: 'flex', width: '100%' }}>
+      <div style={{ width: COL_W }}>
+        <StatCell label="ENTRIES" value={`${summary.entryCount}`} small={!!photoUrl} />
+      </div>
+      <div style={{ width: COL_W }}>
+        <StatCell label="CASHES" value={`${summary.cashCount}`} small={!!photoUrl} />
+      </div>
+      <div style={{ width: COL_W }}>
+        <StatCell label="CASH RATE" value={formatRate(summary.cashRate)} small={!!photoUrl} />
+      </div>
     </div>
   )
 
   const moneyStats = !cashOnly && (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gap: 0,
-        width: '100%',
-        borderTop: `1px solid ${COLOR.border}`,
-      }}
-    >
-      <StatCell label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small={!!photoUrl} money />
-      <div /> {/* spacer */}
-      <StatCell label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small={!!photoUrl} money />
+    <div style={{ display: 'flex', width: '100%', borderTop: `1px solid ${COLOR.border}` }}>
+      <div style={{ width: COL_W }}>
+        <StatCell label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small={!!photoUrl} money />
+      </div>
+      <div style={{ width: COL_W }} />
+      <div style={{ width: COL_W }}>
+        <StatCell label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small={!!photoUrl} money />
+      </div>
     </div>
   )
 
