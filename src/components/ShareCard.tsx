@@ -1,4 +1,4 @@
-import { formatYen, formatRoi, entryInvest, type RoiSummary, type EntryWithRels } from '@/lib/roi'
+import { formatYen, formatRoi, formatRate, entryInvest, type RoiSummary, type EntryWithRels } from '@/lib/roi'
 
 type Props = {
   title: string
@@ -124,98 +124,15 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
         </div>
       </div>
 
-      {/* HERO - cashOnly */}
-      {cashOnly && (
-        photoUrl ? (
-          <div style={{ background: COLOR.bgSoft, display: 'grid', gridTemplateColumns: '420px 1fr', minHeight: HERO_H }}>
-            {/* 左：写真 */}
-            <div style={{ overflow: 'hidden' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            </div>
-            {/* 右：stats */}
-            <div style={{ padding: '40px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
-              <BigStat label="ENTRIES" value={`${summary.entryCount}`} />
-              <BigStat label="CASHES" value={`${summary.cashCount}`} color={COLOR.green} />
-              <BigStat label="PRIZE" value={formatYen(summary.totalCash, hideAmounts)} color={COLOR.green} />
-            </div>
-          </div>
-        ) : (
-          <div style={{ padding: '60px 64px 70px', background: COLOR.bgSoft, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 80, minHeight: HERO_H }}>
-            <BigStat label="ENTRIES" value={`${summary.entryCount}`} large />
-            <div style={{ width: 1, height: 120, background: COLOR.border }} />
-            <BigStat label="CASHES" value={`${summary.cashCount}`} color={COLOR.green} large />
-            <div style={{ width: 1, height: 120, background: COLOR.border }} />
-            <BigStat label="PRIZE" value={formatYen(summary.totalCash, hideAmounts)} color={COLOR.green} large />
-          </div>
-        )
-      )}
+      {/* HERO */}
+      <Hero
+        cashOnly={!!cashOnly}
+        photoUrl={photoUrl}
+        summary={summary}
+        hideAmounts={hideAmounts}
+        roiColor={roiColor}
+      />
 
-      {/* HERO - 通常（ROI表示） */}
-      {/* HERO - 通常（ROI表示） */}
-      {!cashOnly && (
-        photoUrl ? (
-          <div
-            style={{
-              background: COLOR.bgSoft,
-              display: 'grid',
-              gridTemplateColumns: '420px 1fr',
-              minHeight: HERO_H,
-            }}
-          >
-            {/* 左：写真 */}
-            <div style={{ overflow: 'hidden' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photoUrl}
-                alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-              />
-            </div>
-            {/* 右：ROI + stats */}
-            <div style={{ padding: '40px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: 6, color: COLOR.textDim, marginBottom: 8 }}>
-                RETURN ON INVESTMENT
-              </div>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 160, letterSpacing: 0, lineHeight: 1, color: roiColor, fontWeight: 400 }}>
-                {formatRoi(summary.roi)}
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0 20px', marginTop: 28, width: '100%' }}>
-                <Stat label="ENTRIES" value={`${summary.entryCount}`} small center />
-                <Stat label="CASHES" value={`${summary.cashCount}`} small center />
-                <Stat label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small center />
-                <Stat label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small center />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              padding: '60px 64px 70px',
-              background: COLOR.bgSoft,
-              display: 'grid',
-              gridTemplateColumns: '1.1fr 1fr',
-              gap: 40,
-              alignItems: 'center',
-            }}
-          >
-            <div>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 22, letterSpacing: 6, color: COLOR.textDim, marginBottom: 12 }}>
-                RETURN ON INVESTMENT
-              </div>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 180, letterSpacing: 0, lineHeight: 1.1, color: roiColor, fontWeight: 400 }}>
-                {formatRoi(summary.roi)}
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 32px' }}>
-              <Stat label="ENTRIES" value={`${summary.entryCount}`} />
-              <Stat label="CASHES" value={`${summary.cashCount}`} />
-              <Stat label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small />
-              <Stat label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small />
-            </div>
-          </div>
-        )
-      )}
 
       {/* TOURNAMENTS */}
       {visibleEntries.length > 0 && (
@@ -358,49 +275,183 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
   )
 }
 
-function BigStat({
-  label,
-  value,
-  color,
-  large,
+/**
+ * HERO 部分：写真有無 × ROI/cashOnly の4パターンを内包
+ * レイアウト：
+ *   メイン数値（ROI または PRIZE）
+ *   ─────────────
+ *   ENTRIES | CASHES | CASH RATE   (count系3列)
+ *   ─────────────（cashOnlyのときは省略）
+ *   INVEST  | CASH                  (money系2列、ROIモードのみ)
+ */
+function Hero({
+  cashOnly,
+  photoUrl,
+  summary,
+  hideAmounts,
+  roiColor,
 }: {
-  label: string
-  value: string
-  color?: string
-  large?: boolean
+  cashOnly: boolean
+  photoUrl?: string
+  summary: RoiSummary
+  hideAmounts: boolean
+  roiColor: string
 }) {
+  const mainLabel = cashOnly ? 'TOTAL PRIZE' : 'RETURN ON INVESTMENT'
+  const mainValue = cashOnly
+    ? formatYen(summary.totalCash, hideAmounts)
+    : formatRoi(summary.roi)
+  const mainColor = cashOnly ? COLOR.green : roiColor
+  // 写真ありはスペースが狭いので少し小さく
+  const mainSize = photoUrl ? (cashOnly ? 110 : 140) : (cashOnly ? 140 : 170)
+
+  const countStats = (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: 0,
+        width: '100%',
+      }}
+    >
+      <StatCell label="ENTRIES" value={`${summary.entryCount}`} small={!!photoUrl} />
+      <StatCell label="CASHES" value={`${summary.cashCount}`} small={!!photoUrl} divider />
+      <StatCell label="CASH RATE" value={formatRate(summary.cashRate)} small={!!photoUrl} divider />
+    </div>
+  )
+
+  const moneyStats = !cashOnly && (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 0,
+        width: '100%',
+        borderTop: `1px solid ${COLOR.border}`,
+      }}
+    >
+      <StatCell label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small={!!photoUrl} money />
+      <StatCell label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small={!!photoUrl} money divider />
+    </div>
+  )
+
+  const mainBlock = (
+    <div style={{ textAlign: 'center', width: '100%' }}>
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: photoUrl ? 16 : 20,
+          letterSpacing: 6,
+          color: COLOR.textDim,
+          marginBottom: photoUrl ? 4 : 8,
+        }}
+      >
+        {mainLabel}
+      </div>
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontSize: mainSize,
+          letterSpacing: 0,
+          lineHeight: 1,
+          color: mainColor,
+          fontWeight: 400,
+        }}
+      >
+        {mainValue}
+      </div>
+    </div>
+  )
+
+  if (photoUrl) {
+    return (
+      <div
+        style={{
+          background: COLOR.bgSoft,
+          display: 'grid',
+          gridTemplateColumns: '420px 1fr',
+          minHeight: HERO_H,
+        }}
+      >
+        {/* 左：写真 */}
+        <div style={{ overflow: 'hidden' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoUrl}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        </div>
+        {/* 右：メイン + stats */}
+        <div
+          style={{
+            padding: '36px 40px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: 24,
+          }}
+        >
+          {mainBlock}
+          <div style={{ borderTop: `1px solid ${COLOR.border}`, width: '100%' }} />
+          {countStats}
+          {moneyStats}
+        </div>
+      </div>
+    )
+  }
+
+  // 写真なし
   return (
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ fontFamily: FONT_DISPLAY, fontSize: 18, letterSpacing: 5, color: COLOR.textDim, marginBottom: 8 }}>
-        {label}
-      </div>
-      <div style={{ fontFamily: FONT_DISPLAY, fontSize: large ? 100 : 72, letterSpacing: 1, lineHeight: 1, color: color ?? COLOR.text }}>
-        {value}
-      </div>
+    <div
+      style={{
+        background: COLOR.bgSoft,
+        padding: '52px 64px 56px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 36,
+        minHeight: HERO_H,
+      }}
+    >
+      {mainBlock}
+      <div style={{ borderTop: `1px solid ${COLOR.border}`, width: '100%' }} />
+      {countStats}
+      {moneyStats}
     </div>
   )
 }
 
-function Stat({
+/**
+ * 統計セル：ラベル＋数値。divider=trueのとき左側に縦線を引く
+ */
+function StatCell({
   label,
   value,
   small,
-  center,
+  money,
+  divider,
 }: {
   label: string
   value: string
   small?: boolean
-  center?: boolean
+  money?: boolean
+  divider?: boolean
 }) {
   return (
-    <div style={{ textAlign: center ? 'center' : 'left' }}>
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '16px 8px',
+        borderLeft: divider ? `1px solid ${COLOR.border}` : 'none',
+      }}
+    >
       <div
         style={{
           fontFamily: FONT_DISPLAY,
-          fontSize: 18,
+          fontSize: small ? 13 : 16,
           letterSpacing: 4,
           color: COLOR.textDim,
-          marginBottom: 4,
+          marginBottom: small ? 4 : 6,
         }}
       >
         {label}
@@ -408,7 +459,7 @@ function Stat({
       <div
         style={{
           fontFamily: FONT_DISPLAY,
-          fontSize: small ? 38 : 56,
+          fontSize: money ? (small ? 32 : 44) : (small ? 44 : 60),
           letterSpacing: 1,
           lineHeight: 1,
           color: COLOR.text,
@@ -419,3 +470,4 @@ function Stat({
     </div>
   )
 }
+
