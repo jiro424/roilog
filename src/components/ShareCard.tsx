@@ -6,6 +6,7 @@ type Props = {
   summary: RoiSummary
   hideAmounts: boolean
   entries?: EntryWithRels[]
+  photoUrl?: string
 }
 
 const WIDTH = 1080
@@ -39,7 +40,7 @@ const COLOR = {
 const FONT_DISPLAY = 'var(--font-bebas), "Hiragino Kaku Gothic Pro", sans-serif'
 const FONT_BODY = 'var(--font-outfit), var(--font-noto-jp), "Hiragino Kaku Gothic Pro", sans-serif'
 
-export default function ShareCard({ title, brandName, summary, hideAmounts, entries = [] }: Props) {
+export default function ShareCard({ title, brandName, summary, hideAmounts, entries = [], photoUrl }: Props) {
   const roiColor =
     summary.profit > 0 ? COLOR.green : summary.profit < 0 ? COLOR.red : COLOR.textDim
 
@@ -118,65 +119,101 @@ export default function ShareCard({ title, brandName, summary, hideAmounts, entr
       </div>
 
       {/* HERO */}
-      <div
-        style={{
-          padding: '60px 64px 70px',
-          background: COLOR.bgSoft,
-          display: 'grid',
-          gridTemplateColumns: '1.1fr 1fr',
-          gap: 40,
-          alignItems: 'center',
-        }}
-      >
-        {/* ROI big */}
-        <div>
-          <div
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 22,
-              letterSpacing: 6,
-              color: COLOR.textDim,
-              marginBottom: 12,
-            }}
-          >
-            RETURN ON INVESTMENT
-          </div>
-          <div
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: 180,
-              letterSpacing: 0,
-              lineHeight: 1.1,
-              color: roiColor,
-              fontWeight: 400,
-            }}
-          >
-            {formatRoi(summary.roi)}
-          </div>
-        </div>
-
-        {/* Summary stats */}
+      {photoUrl ? (
         <div
           style={{
+            background: COLOR.bgSoft,
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '20px 32px',
+            gridTemplateColumns: '1fr 420px',
+            minHeight: HERO_H,
           }}
         >
-          <Stat label="ENTRIES" value={`${summary.entryCount}`} />
-          <Stat label="CASHES" value={`${summary.cashCount}`} />
-          <Stat
-            label="INVEST"
-            value={formatYen(summary.totalInvest, hideAmounts)}
-            small
-          />
-          <Stat
-            label="CASH"
-            value={formatYen(summary.totalCash, hideAmounts)}
-            small
-          />
+          {/* 左：ROI + stats */}
+          <div style={{ padding: '52px 48px 52px 64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 20, letterSpacing: 6, color: COLOR.textDim, marginBottom: 8 }}>
+              RETURN ON INVESTMENT
+            </div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 160, letterSpacing: 0, lineHeight: 1, color: roiColor, fontWeight: 400 }}>
+              {formatRoi(summary.roi)}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0 24px', marginTop: 28 }}>
+              <Stat label="ENTRIES" value={`${summary.entryCount}`} small />
+              <Stat label="CASHES" value={`${summary.cashCount}`} small />
+              <Stat label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small />
+              <Stat label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small />
+            </div>
+          </div>
+          {/* 右：写真 */}
+          <div style={{ overflow: 'hidden' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photoUrl}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div
+          style={{
+            padding: '60px 64px 70px',
+            background: COLOR.bgSoft,
+            display: 'grid',
+            gridTemplateColumns: '1.1fr 1fr',
+            gap: 40,
+            alignItems: 'center',
+          }}
+        >
+          {/* ROI big */}
+          <div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 22,
+                letterSpacing: 6,
+                color: COLOR.textDim,
+                marginBottom: 12,
+              }}
+            >
+              RETURN ON INVESTMENT
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 180,
+                letterSpacing: 0,
+                lineHeight: 1.1,
+                color: roiColor,
+                fontWeight: 400,
+              }}
+            >
+              {formatRoi(summary.roi)}
+            </div>
+          </div>
+
+          {/* Summary stats */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '20px 32px',
+            }}
+          >
+            <Stat label="ENTRIES" value={`${summary.entryCount}`} />
+            <Stat label="CASHES" value={`${summary.cashCount}`} />
+            <Stat
+              label="INVEST"
+              value={formatYen(summary.totalInvest, hideAmounts)}
+              small
+            />
+            <Stat
+              label="CASH"
+              value={formatYen(summary.totalCash, hideAmounts)}
+              small
+            />
+          </div>
+        </div>
+      )}
 
       {/* TOURNAMENTS */}
       {visibleEntries.length > 0 && (

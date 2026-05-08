@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareModal from '@/components/ShareModal'
+import ShareCard from '@/components/ShareCard'
 import type { RoiSummary, EntryWithRels } from '@/lib/roi'
 
 const mockEntries = (
@@ -98,6 +99,8 @@ const summarize = (entries: EntryWithRels[]): RoiSummary => {
   }
 }
 
+const SAMPLE_PHOTO = 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&q=80'
+
 export default function SharePreviewPage() {
   const [share, setShare] = useState<{
     title: string
@@ -105,11 +108,15 @@ export default function SharePreviewPage() {
     summary: RoiSummary
     entries: EntryWithRels[]
   } | null>(null)
+  const [showPhotoPreview, setShowPhotoPreview] = useState(false)
 
   const open = (count: number, title: string, brandName?: string) => {
     const entries = mockEntries(count, brandName ?? 'JOPT', title)
     setShare({ title, brandName, summary: summarize(entries), entries })
   }
+
+  const sampleEntries = mockEntries(8, 'JOPT', 'JOPT GF 2026')
+  const sampleSummary = summarize(sampleEntries)
 
   return (
     <div className="px-5 pt-8 pb-12 space-y-4">
@@ -147,6 +154,33 @@ export default function SharePreviewPage() {
       >
         超過（20トナメ → 16表示＋他4件）
       </button>
+
+      {/* 写真ありプレビュー */}
+      <div className="pt-4">
+        <div className="text-[10px] tracking-[0.3em] mb-3" style={{ color: 'rgba(0,0,0,0.4)' }}>
+          写真追加レイアウト（検討中）
+        </div>
+        <button
+          onClick={() => setShowPhotoPreview(!showPhotoPreview)}
+          className="neu-button w-full py-4"
+        >
+          {showPhotoPreview ? '写真ありレイアウトを隠す' : '📷 写真ありレイアウトを確認'}
+        </button>
+        {showPhotoPreview && (
+          <div className="mt-4 overflow-x-auto">
+            <div style={{ transform: 'scale(0.35)', transformOrigin: 'top left', width: 1080, marginBottom: -700 }}>
+              <ShareCard
+                title="JOPT GF 2026"
+                brandName="JOPT"
+                summary={sampleSummary}
+                hideAmounts={false}
+                entries={sampleEntries}
+                photoUrl={SAMPLE_PHOTO}
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       <ShareModal
         open={share !== null}
