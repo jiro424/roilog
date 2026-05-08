@@ -307,6 +307,8 @@ function Hero({
   // 写真ありはスペースが狭いので少し小さく
   const mainSize = photoUrl ? (cashOnly ? 110 : 140) : (cashOnly ? 140 : 170)
 
+  // ENTRIES/CASHES/CASH RATE と INVEST/CASH を同じ3列グリッドに揃えて
+  // 列の中心位置を一致させる（INVEST=col1, 中央=空, CASH=col3）
   const countStats = (
     <div
       style={{
@@ -317,8 +319,8 @@ function Hero({
       }}
     >
       <StatCell label="ENTRIES" value={`${summary.entryCount}`} small={!!photoUrl} />
-      <StatCell label="CASHES" value={`${summary.cashCount}`} small={!!photoUrl} divider />
-      <StatCell label="CASH RATE" value={formatRate(summary.cashRate)} small={!!photoUrl} divider />
+      <StatCell label="CASHES" value={`${summary.cashCount}`} small={!!photoUrl} />
+      <StatCell label="CASH RATE" value={formatRate(summary.cashRate)} small={!!photoUrl} />
     </div>
   )
 
@@ -326,14 +328,15 @@ function Hero({
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: '1fr 1fr 1fr',
         gap: 0,
         width: '100%',
         borderTop: `1px solid ${COLOR.border}`,
       }}
     >
       <StatCell label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small={!!photoUrl} money />
-      <StatCell label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small={!!photoUrl} money divider />
+      <div /> {/* spacer */}
+      <StatCell label="CASH" value={formatYen(summary.totalCash, hideAmounts)} small={!!photoUrl} money />
     </div>
   )
 
@@ -342,10 +345,10 @@ function Hero({
       <div
         style={{
           fontFamily: FONT_DISPLAY,
-          fontSize: photoUrl ? 16 : 20,
+          fontSize: photoUrl ? 22 : 28,
           letterSpacing: 6,
           color: COLOR.textDim,
-          marginBottom: photoUrl ? 4 : 8,
+          marginBottom: photoUrl ? 8 : 12,
         }}
       >
         {mainLabel}
@@ -432,29 +435,26 @@ function StatCell({
   value,
   small,
   money,
-  divider,
 }: {
   label: string
   value: string
   small?: boolean
   money?: boolean
-  divider?: boolean
 }) {
   return (
     <div
       style={{
         textAlign: 'center',
-        padding: '16px 8px',
-        borderLeft: divider ? `1px solid ${COLOR.border}` : 'none',
+        padding: '18px 8px',
       }}
     >
       <div
         style={{
           fontFamily: FONT_DISPLAY,
-          fontSize: small ? 13 : 16,
+          fontSize: small ? 18 : 22,
           letterSpacing: 4,
           color: COLOR.textDim,
-          marginBottom: small ? 4 : 6,
+          marginBottom: small ? 6 : 8,
         }}
       >
         {label}
