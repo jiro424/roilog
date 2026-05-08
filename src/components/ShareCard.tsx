@@ -388,11 +388,11 @@ function Hero({
         {/* 右：メイン + stats */}
         <div
           style={{
-            padding: '32px 40px',
+            padding: '40px 40px 32px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            gap: 12,
+            justifyContent: 'flex-start',
+            gap: 16,
           }}
         >
           {mainBlock}
@@ -408,10 +408,10 @@ function Hero({
     <div
       style={{
         background: COLOR.bgSoft,
-        padding: '52px 64px 60px',
+        padding: '36px 64px 56px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 40,
+        gap: 32,
       }}
     >
       {mainBlock}
