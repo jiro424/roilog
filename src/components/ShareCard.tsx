@@ -325,7 +325,7 @@ function Hero({
   )
 
   const moneyStats = !cashOnly && (
-    <div style={{ display: 'flex', width: '100%', borderTop: `1px solid ${COLOR.border}` }}>
+    <div style={{ display: 'flex', width: '100%' }}>
       <div style={{ width: COL_W }}>
         <StatCell label="INVEST" value={formatYen(summary.totalInvest, hideAmounts)} small={!!photoUrl} money />
       </div>
@@ -392,11 +392,10 @@ function Hero({
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            gap: 20,
+            gap: 28,
           }}
         >
           {mainBlock}
-          <div style={{ borderTop: `1px solid ${COLOR.border}`, width: '100%' }} />
           {countStats}
           {moneyStats}
         </div>
@@ -409,14 +408,13 @@ function Hero({
     <div
       style={{
         background: COLOR.bgSoft,
-        padding: '52px 64px 56px',
+        padding: '52px 64px 60px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 32,
+        gap: 40,
       }}
     >
       {mainBlock}
-      <div style={{ borderTop: `1px solid ${COLOR.border}`, width: '100%' }} />
       {countStats}
       {moneyStats}
     </div>
